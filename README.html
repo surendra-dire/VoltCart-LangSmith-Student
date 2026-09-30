@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="VoltCart student documentation: executable LangSmith labs and application guides.">
+<title>Setup and quick start | VoltCart student guides</title><style>
+:root{color-scheme:light;--ink:#182d32;--muted:#53696d;--green:#086851;--line:#dce5e3;--paper:#fff;--canvas:#f3f6f4}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:85px}
+body{margin:0;background:var(--canvas);color:var(--ink);font:16px/1.75 system-ui,-apple-system,'Segoe UI',sans-serif}
+a{color:var(--green);text-underline-offset:3px}a:hover{color:#003f30}a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid #e7b84c;outline-offset:4px}
+.skip{position:absolute;left:12px;top:-80px;background:white;padding:8px;z-index:20}.skip:focus{top:12px}
+.topbar{background:#123b36;color:white;padding:13px 28px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{color:white;text-decoration:none;font-weight:750;letter-spacing:.03em}.topbar a:hover{color:#d7f5e6}
+.topnav{display:flex;gap:18px;align-items:center;font-size:14px}.topnav a{color:#dbece5}
+button,.button{font:inherit;cursor:pointer;border:1px solid var(--line);background:white;color:var(--green);border-radius:7px;padding:7px 12px;text-decoration:none;font-size:13px;font-weight:650}
+.layout{display:grid;grid-template-columns:280px minmax(0,960px);max-width:1340px;margin:auto;gap:34px;padding:32px 28px 70px}
+aside{font-size:13px;position:sticky;top:20px;align-self:start;max-height:calc(100vh - 40px);overflow:auto;padding-right:10px}
+aside .label{font-size:11px;text-transform:uppercase;letter-spacing:.12em;font-weight:800;color:var(--muted);margin:8px 0}
+.guide-nav{display:grid;gap:5px;margin-bottom:24px}.guide-nav a{padding:7px 10px;border-radius:6px;text-decoration:none;line-height:1.5}.guide-nav a.active{background:#dfeee6;font-weight:700}
+aside ul{list-style:none;margin:0;padding-left:0}aside li{margin:7px 0;line-height:1.5}aside li ul{padding-left:14px;border-left:1px solid var(--line);margin:8px 0}aside a{text-decoration:none;color:var(--muted)}
+aside summary{cursor:pointer;font-weight:700;padding:6px 0}.toc>ul>li>a{font-weight:650}
+main{min-width:0;background:var(--paper);border:1px solid var(--line);border-radius:13px;padding:36px 44px;box-shadow:0 7px 22px #163d3005}
+.eyebrow{color:var(--green);font-size:12px;text-transform:uppercase;letter-spacing:.13em;font-weight:800;margin:0 0 12px}
+.doc-note{font-size:13px;background:#edf6f1;border-left:3px solid #379d76;padding:10px 14px;color:#315a4e;margin-bottom:25px}
+h1{font-size:36px;line-height:1.2;letter-spacing:-.035em;margin:0 0 20px}h2{font-size:25px;line-height:1.35;margin:44px 0 16px;padding-top:8px;border-top:1px solid var(--line);letter-spacing:-.02em}h3{font-size:19px;line-height:1.4;margin:28px 0 12px}h4{font-size:17px}
+p{margin:14px 0}li{margin:6px 0}strong{font-weight:700}blockquote{margin:20px 0;padding:8px 20px;background:#f0f6f3;border-left:4px solid #65a58c;color:#294e43}
+code{font:0.88em/1.6 Consolas,'Cascadia Code',monospace;background:#edf2ef;padding:2px 5px;border-radius:4px;overflow-wrap:anywhere}
+.code-block{position:relative;margin:20px 0}pre{background:#132b2b;color:#ecf5ee;padding:42px 20px 20px;border-radius:9px;overflow:auto;line-height:1.65;margin:0}pre code{background:none;color:inherit;padding:0;border-radius:0;overflow-wrap:normal;font-size:13px}
+.copy{position:absolute;right:9px;top:8px;background:#27423e;border-color:#46615a;color:#e5f4e9;font-size:11px;padding:3px 9px}.copy:hover{background:#365b50}
+.code-block .language{position:absolute;left:20px;top:10px;font:10px/1.5 system-ui;color:#aecabd;letter-spacing:.1em;text-transform:uppercase}
+.table-wrap{overflow:auto;margin:22px 0;border:1px solid var(--line);border-radius:8px}table{border-collapse:collapse;width:100%;font-size:14px;line-height:1.6}th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}th{background:#eaf2ed;font-weight:700}tr:last-child td{border-bottom:0}tbody tr:nth-child(even){background:#f9fbf9}
+hr{border:0;border-top:1px solid var(--line);margin:30px 0}.footer{font-size:12px;color:var(--muted);margin-top:44px;padding-top:18px;border-top:1px solid var(--line)}
+.home{max-width:1120px;margin:40px auto;padding:40px}.home h1{font-size:46px;max-width:760px}.intro{font-size:19px;color:var(--muted);max-width:760px}.cards{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:30px}.card{border:1px solid var(--line);border-radius:10px;padding:24px;text-decoration:none;color:var(--ink);display:block;background:#fafcfa}.card:hover{background:#eef6f0;border-color:#93bba9}.card.primary{border-top:4px solid var(--green)}.card h2{border:0;margin:10px 0;padding:0;font-size:23px}.card p{font-size:15px;color:var(--muted)}.card .cta{font-size:14px;font-weight:750;color:var(--green)}.steps{background:#edf6f1;border-radius:9px;padding:20px 28px;margin:28px 0}.steps h2{border:0;padding:0;margin:0 0 12px;font-size:22px}
+@media(max-width:1000px){.layout{grid-template-columns:230px minmax(0,1fr);gap:20px;padding:22px 16px}main{padding:28px}h1{font-size:31px}}
+@media(max-width:720px){.topbar{padding:14px 18px;align-items:flex-start}.topnav{gap:10px;flex-wrap:wrap;justify-content:flex-end}.layout{display:block;padding:18px 12px}aside{position:static;max-height:none;padding:0 8px;margin-bottom:20px}.guide-nav{grid-template-columns:1fr 1fr;margin-bottom:12px}aside details{border:1px solid var(--line);border-radius:7px;padding:8px 12px}main{padding:24px 20px}h1{font-size:29px}h2{font-size:23px}.cards{grid-template-columns:1fr}.home{margin:18px 12px;padding:25px 20px}.home h1{font-size:35px}.intro{font-size:17px}th,td{min-width:140px;padding:10px}}
+@media print{body{background:white;font:10pt/1.55 Georgia,serif;color:black}.topbar,aside,.copy,.skip,.doc-note{display:none!important}.layout{display:block;padding:0;margin:0;max-width:none}main,.home{border:0;box-shadow:none;padding:0;margin:0;max-width:none}h1{font-size:25pt}h2{font-size:17pt;margin-top:25px;break-after:avoid}h3{break-after:avoid}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f1f3f1;color:black;border:1px solid #ccc;padding:26px 12px 12px}pre code{font-size:8pt}.code-block .language{color:#555}.table-wrap{overflow:visible}table{font-size:9pt}tr{break-inside:avoid}thead{display:table-header-group}a{color:inherit}.cards{display:block}.card{margin:14px 0;break-inside:avoid}@page{margin:16mm}}
+</style></head>
+<body><a class="skip" href="#content">Skip to content</a>
+<header class="topbar"><a class="brand" href="START_HERE.html">VOLTCART / LEARNING LAB</a>
+<nav class="topnav" aria-label="Page actions"><a href="START_HERE.html">All guides</a><button type="button" onclick="window.print()">Print / Save PDF</button></nav></header>
+<div class="layout"><aside aria-label="Guide navigation"><p class="label">Student guides</p><nav class="guide-nav"><a  href="LANGSMITH_STUDENT_WORKBOOK.html">LangSmith hands-on workbook</a><a  href="LANGSMITH_INTEGRATION_EXPLAINED.html">How LangSmith was integrated</a><a class=active aria-current=page href="README.html">Setup and quick start</a><a  href="APP_GUIDE.html">VoltCart application guide</a><a  href="API_GUIDE.html">API and Postman guide</a></nav><details open><summary>On this page</summary><div class="toc">
+<ul>
+<li><a href="#read-the-student-guides-in-your-browser">Read the student guides in your browser</a></li>
+<li><a href="#start-on-windows">Start on Windows</a></li>
+<li><a href="#settings-students-change">Settings students change</a></li>
+<li><a href="#verify-langsmith">Verify LangSmith</a></li>
+<li><a href="#what-is-uploaded">What is uploaded</a></li>
+<li><a href="#classroom-exercises">Classroom exercises</a></li>
+<li><a href="#macos-linux-or-manual-setup">macOS / Linux or manual setup</a></li>
+<li><a href="#tests-and-files">Tests and files</a></li>
+</ul>
+</div>
+</details></aside><main id="content"><p class="eyebrow">Get ready</p><div class="doc-note">Open this file in any browser. Use Copy on command examples, or Print / Save PDF for a printable copy. The page itself works offline; live services and first-time setup require internet.</div><h1 id="voltcart-with-langsmith-student-edition">VoltCart with LangSmith — student edition</h1>
+<p>A local electronics shopping-agent demo with optional LangSmith tracing. All
+connection settings are in <strong>config.py</strong>. No environment variables, JSON
+credential file, LangChain migration, database setup, or frontend build is needed.</p>
+<h2 id="read-the-student-guides-in-your-browser">Read the student guides in your browser</h2>
+<p>Double-click <strong><a href="START_HERE.html">START_HERE.html</a></strong> for all student guides, including
+the <strong><a href="LANGSMITH_STUDENT_WORKBOOK.html">LangSmith hands-on workbook</a></strong>. The HTML
+pages work offline, include a table of contents and copy buttons for commands,
+and support <strong>Print / Save PDF</strong>. No Markdown viewer is required.</p>
+<p>For a simple explanation of the integration code, read
+<strong><a href="LANGSMITH_INTEGRATION_EXPLAINED.html">How LangSmith was integrated into VoltCart</a></strong>.</p>
+<h2 id="start-on-windows">Start on Windows</h2>
+<ol>
+<li>Install <strong>Python 3.10 or newer</strong> with Python available on PATH.</li>
+<li>Extract the ZIP completely. Do not run files from inside the ZIP viewer.</li>
+<li>Open <code>config.py</code> in a text editor and change the settings below. Keep strings
+   inside quotes; Python booleans are <code>True</code> and <code>False</code>.</li>
+<li>Double-click <code>start_demo.bat</code>. First use creates a <code>.venv</code> and installs the
+   dependencies automatically, requiring internet access. You can also run
+   <code>setup.bat</code> separately before class.</li>
+<li>Open <strong>http://127.0.0.1:8000</strong> and sign in with <code>aarav@voltcart.demo</code> /
+   <code>Demo@123</code>, or register a learner account. Leave the console running.
+   Press Ctrl+C to stop.</li>
+</ol>
+<p>Save <code>config.py</code> and restart the server after changing any setting.</p>
+<h2 id="settings-students-change">Settings students change</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Variable in config.py</th>
+<th>Value to use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OPENAI_API_KEY</code></td>
+<td>Your authorized model API key</td>
+</tr>
+<tr>
+<td><code>OPENAI_BASE_URL</code></td>
+<td>Your Azure resource URL ending in <code>/openai/v1</code>; do not append <code>/chat/completions</code></td>
+</tr>
+<tr>
+<td><code>OPENAI_MODEL</code></td>
+<td>Your deployment name; the default matches the current source, <code>gpt-5.4-nano</code></td>
+</tr>
+<tr>
+<td><code>OPENAI_API_MODE</code></td>
+<td>Usually <code>"chat_completions"</code>; optional <code>"responses"</code> requires a compatible deployment</td>
+</tr>
+<tr>
+<td><code>OPENAI_AUTH_HEADER</code></td>
+<td><code>"api-key"</code> for Azure; <code>"Authorization"</code> for a Bearer key</td>
+</tr>
+<tr>
+<td><code>LANGSMITH_ENABLED</code></td>
+<td>Change to <code>True</code> to enable tracing</td>
+</tr>
+<tr>
+<td><code>LANGSMITH_API_KEY</code></td>
+<td>Your separate LangSmith API key from account/workspace settings</td>
+</tr>
+<tr>
+<td><code>LANGSMITH_PROJECT</code></td>
+<td>A project name you choose, such as <code>voltcart-priya</code></td>
+</tr>
+<tr>
+<td><code>LANGSMITH_ENDPOINT</code></td>
+<td>Keep the US default, or use <code>https://eu.api.smith.langchain.com</code> for an EU workspace</td>
+</tr>
+<tr>
+<td><code>LANGSMITH_WORKSPACE_ID</code></td>
+<td>Usually empty; supply your workspace ID when required by your key</td>
+</tr>
+</tbody>
+</table></div>
+<p>The model key and LangSmith key belong to different services and are not interchangeable.
+Use a deployment compatible with the selected API mode and request parameters.
+Advanced model request parameters are also in <code>config.py</code>.</p>
+<p>The downloaded ZIP contains <strong>placeholder keys only</strong>. Keep your configured copy
+private. To share with another student, share the original ZIP instead of your
+edited folder. A separate project name organizes traces but does not grant or
+restrict workspace access.</p>
+<h2 id="verify-langsmith">Verify LangSmith</h2>
+<ol>
+<li>Set <code>LANGSMITH_ENABLED = True</code> and enter your LangSmith key. Restart the app.</li>
+<li>Send <code>Recommend headphones under 10000</code> in the web chat.</li>
+<li>Open LangSmith in the region matching your endpoint and open the project named
+   by <code>LANGSMITH_PROJECT</code>. Allow a few seconds for background uploads.</li>
+<li>Inspect <code>VoltCart chat</code>, then its <code>Remote agent</code> or <code>Local demo agent</code> child.
+   Remote runs include <code>Model request</code> calls and named tools. Local search is
+   traced as <code>search_products</code>. The existing UI Action log remains available.</li>
+<li>Send another message in the same browser conversation. Its <code>session_id</code>
+   groups the turns in LangSmith's Threads view.</li>
+</ol>
+<p>The app's existing SQLite traces, replay, export and metrics features are also
+included. LangSmith root metadata includes <code>voltcart_trace_id</code> and <code>correlation_id</code>
+so you can match the two views. Replays retain the source application's read-only
+guardrails. Direct non-chat API operations are not automatically LangSmith spans.</p>
+<p>You can test LangSmith with <strong>only a LangSmith key</strong>: leave the model settings at
+their placeholders and the app will trace the deterministic local agent. These
+traces have no model token usage. A startup message saying tracing is enabled
+describes configuration; a visible trace confirms a successful connection.</p>
+<p>If traces do not appear, check the console, dependencies, key, endpoint region,
+workspace ID, project name, and network access. Model failure can fall back to
+local mode; inspect the remote error span and the response warning. Tracing
+failure does not retry a shopping action or block use of the local app.</p>
+<p>Token counts are recorded when the model returns usage. LangSmith cost estimates
+depend on recognized model names/pricing; custom Azure deployment names or rates
+may require custom pricing in LangSmith.
+The built-in VoltCart metrics retain the source's illustrative fixed token rates;
+they are not an Azure billing statement.</p>
+<h2 id="what-is-uploaded">What is uploaded</h2>
+<p>With tracing enabled, prompts, responses, tool arguments/results, session IDs,
+timing, and outcome metadata are sent to your LangSmith workspace. Known API keys
+and known signed-in customer names, email addresses, phone numbers and addresses
+are redacted. Password fields, session-token fields and attachments are omitted.
+Arbitrary text
+typed into chat is not a general-purpose PII filter; use classroom data.</p>
+<p>Set <code>LANGSMITH_CAPTURE_CONTENT = False</code> to omit input/output content while keeping
+timing, session IDs, outcome metadata and any model token counts. Set
+<code>LANGSMITH_ENABLED = False</code> to disable this application's tracing entirely,
+regardless of ambient LangSmith environment settings.</p>
+<h2 id="classroom-exercises">Classroom exercises</h2>
+<p>For step-by-step teaching, use the <strong><a href="LANGSMITH_STUDENT_WORKBOOK.html">LangSmith student workbook</a></strong>.
+It includes 12 practical labs, optional model/online-evaluation labs, expected
+observations, troubleshooting, and an assessment rubric. Executable scripts in
+<code>labs/</code> demonstrate slow tools, exceptions, fallback, business denials, monitoring,
+feedback, and baseline/buggy/fixed evaluation experiments. Core labs need no model
+key; add <code>--live</code> and a LangSmith key to inspect real uploads in your workspace.</p>
+<pre><code class="language-powershell">.\.venv\Scripts\python.exe -m labs.langsmith_lab run happy
+.\.venv\Scripts\python.exe -m labs.langsmith_lab run happy --live
+.\.venv\Scripts\python.exe -m labs.evaluate_agent --variant fixed --gate
+</code></pre>
+<ul>
+<li><code>Place an order for Sony WH-CH720N Headphones</code>, then <code>Where is that order?</code></li>
+<li><code>Build a gaming setup under 90000 with a laptop, mouse and headphones</code></li>
+<li>Send the exact <code>Approve APR-...</code> command from the plan in a later message.</li>
+<li>Compare <code>Can I cancel it?</code> with <code>Cancel that order</code> in the tool results.</li>
+<li><code>Can I return order ORD-DEMO-1001?</code></li>
+<li><code>Summarize verified reviews for Sony WH-CH720N Headphones</code></li>
+<li><code>Create a support ticket: my delivered earbuds are damaged</code></li>
+<li><code>Remember my budget is 80000, I prefer Sony, and exclude Apple</code></li>
+<li><code>Add the Sony headphones to my cart</code>, then <code>Checkout my cart</code></li>
+<li>Compare remote model behavior with local fallback or the built-in replay tools.</li>
+</ul>
+<p>Purchases above INR 50,000 and all bundles require a later approval. Orders,
+stock, approvals and return policies are enforced by Python. This is a local
+teaching demo with simulated payments, learner accounts, and always-available
+inventory so scenarios can be repeated. See <code>APP_GUIDE.md</code> for the complete
+current feature guide.</p>
+<p>Each extracted copy starts with fresh seeded learner accounts, reviews and demo
+orders; the SQLite file <code>data/voltcart.db</code> is created automatically on first run.
+No database server is required. <strong>Reset demo</strong> restores the teaching order data. Browser and
+Postman sessions are separate unless they use the same <code>session_id</code>.</p>
+<h2 id="macos-linux-or-manual-setup">macOS / Linux or manual setup</h2>
+<pre><code class="language-sh">python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+python app.py
+</code></pre>
+<p>Windows manual equivalent after running <code>setup.bat</code>:</p>
+<pre><code class="language-powershell">.\.venv\Scripts\python.exe app.py
+</code></pre>
+<h2 id="tests-and-files">Tests and files</h2>
+<p>Windows: <code>.\.venv\Scripts\python.exe -m pytest -q</code></p>
+<p>macOS/Linux with the environment activated: <code>python -m pytest -q</code></p>
+<p>Tests use simulated model responses and mocked trace transport. They make no
+paid model calls and do not upload traces, including when your config has keys.
+HTTP tests use a temporary order store rather than your demo orders.</p>
+<ul>
+<li><code>config.py</code>: all student settings</li>
+<li><code>app.py</code>: local HTTP server</li>
+<li><code>agent_service.py</code>: model/tool loops and local fallback</li>
+<li><code>observability.py</code>: optional tracing and redaction</li>
+<li><code>database.py</code>, <code>store.py</code>, <code>catalog.py</code>: SQLite persistence, shopping data and rules</li>
+<li><code>static/</code>: browser UI</li>
+<li><code>API_GUIDE.md</code>, <code>postman/</code>: API examples and Postman collection</li>
+<li><code>VoltCart_AI_Agent_Test_Cases_100.csv</code>: classroom test-case reference</li>
+</ul>
+<p>Integration reference: https://docs.langchain.com/langsmith/annotate-code</p><footer class="footer">VoltCart student edition · <a href="START_HERE.html">All guides</a> · <a href="README.md">Markdown source</a></footer></main></div><script>
+document.querySelectorAll('pre').forEach(pre => {
+  const wrap = document.createElement('div'); wrap.className = 'code-block';
+  pre.parentNode.insertBefore(wrap, pre); wrap.appendChild(pre);
+  const code = pre.querySelector('code');
+  const label = document.createElement('span'); label.className = 'language';
+  label.textContent = ((code && code.className.match(/language-([\w-]+)/)) || [,'example'])[1];
+  wrap.appendChild(label);
+  const button = document.createElement('button'); button.className = 'copy';
+  button.type = 'button'; button.textContent = 'Copy'; button.setAttribute('aria-label','Copy code example');
+  button.addEventListener('click', async () => {
+    const text = pre.textContent; let copied = false;
+    try { await navigator.clipboard.writeText(text); copied = true; } catch (_) {
+      const area = document.createElement('textarea'); area.value = text;
+      area.style.position='fixed'; area.style.opacity='0'; document.body.appendChild(area);
+      area.select(); copied = document.execCommand('copy'); area.remove();
+    }
+    button.textContent = copied ? 'Copied!' : 'Select and copy';
+    if (!copied) { const range=document.createRange(); range.selectNodeContents(pre); const selection=window.getSelection(); selection.removeAllRanges(); selection.addRange(range); }
+    setTimeout(() => button.textContent = 'Copy', 1800);
+  });
+  wrap.appendChild(button);
+});
+if (window.matchMedia('(max-width: 720px)').matches) document.querySelectorAll('aside details').forEach(d => d.open = false);
+</script></body></html>

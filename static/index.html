@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="VoltCart is a local electronics storefront demonstrating an AI shopping agent that can search, order, track, and cancel products.">
+  <meta name="theme-color" content="#1d4ed8">
+  <title>VoltCart | Agent-powered electronics shopping</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#productsSection">Skip to products</a>
+
+  <div class="announcement" role="note">
+    <div class="page-shell announcement-inner">
+      <span><strong>Launch offers</strong> on top electronics</span>
+      <span class="announcement-divider" aria-hidden="true"></span>
+      <span>Free delivery on every demo order</span>
+    </div>
+  </div>
+
+  <header class="site-header" id="siteHeader">
+    <div class="page-shell header-inner">
+      <a class="brand" href="#top" aria-label="VoltCart home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M13.2 2 5.7 13h5.6l-.5 9L18.3 11h-5.6l.5-9Z"/></svg>
+        </span>
+        <span>VoltCart</span>
+      </a>
+
+      <form class="header-search" id="headerSearchForm" role="search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.4-4.4m2.4-5.1a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z"/></svg>
+        <input id="globalSearch" type="search" autocomplete="off" placeholder="Search phones, laptops, audio and more" aria-label="Search products">
+        <button class="search-clear" id="searchClear" type="button" aria-label="Clear product search" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+        </button>
+      </form>
+
+      <nav class="header-actions" aria-label="Store actions">
+        <button class="header-action agent-status-button" id="headerAgentButton" type="button">
+          <span class="status-pulse" aria-hidden="true"></span>
+          <span class="header-action-copy"><small>AI agent</small><strong>Online</strong></span>
+        </button>
+        <button class="header-action" id="openInsightsButton" type="button" aria-haspopup="dialog">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V9m6 10V5m6 14v-7m4 7H2"/></svg>
+          <span class="header-action-copy"><small>Agent</small><strong>Insights</strong></span>
+        </button>
+        <button class="header-action" id="openCartButton" type="button" aria-haspopup="dialog">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2 11h10l3-8H6M9 20h.01M17 20h.01"/></svg>
+          <span class="header-action-copy"><small>Your</small><strong>Cart</strong></span>
+          <span class="count-badge" id="cartCount">0</span>
+        </button>
+        <button class="header-action orders-button" id="openOrdersButton" type="button" aria-haspopup="dialog">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10l2 4v13H5V7l2-4Zm-2 4h14M9 11a3 3 0 0 0 6 0"/></svg>
+          <span class="header-action-copy"><small>For <span id="headerUserName">Aarav</span></small><strong>Orders</strong></span>
+          <span class="count-badge" id="ordersCount">0</span>
+        </button>
+        <button class="header-action" id="accountButton" type="button" aria-haspopup="dialog">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 9a7 7 0 0 1 14 0"/></svg>
+          <span class="header-action-copy"><small>Signed in</small><strong id="accountName">Account</strong></span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="page-shell proactive-banner" id="proactiveBanner" hidden aria-live="polite"></section>
+    <section class="hero page-shell" aria-labelledby="heroTitle">
+      <div class="hero-card">
+        <div class="hero-copy">
+          <span class="eyebrow eyebrow-light"><span class="sparkle" aria-hidden="true">&#10022;</span> Smarter shopping starts here</span>
+          <h1 id="heroTitle">Upgrade your tech.<br><span>Let the agent handle the rest.</span></h1>
+          <p>Discover electronics at great prices, then ask Volt to plan, order, track, return, or exchange in a single conversation.</p>
+          <div class="hero-actions">
+            <button class="button button-light" id="exploreDealsButton" type="button">Explore today&rsquo;s deals</button>
+            <button class="button button-ghost-light" id="askAgentHeroButton" type="button">
+              Ask the shopping agent
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+          </div>
+          <div class="hero-proof" aria-label="Store highlights">
+            <span><strong id="heroProductCount">26</strong> curated products</span>
+            <span><strong id="heroDealCount">20+</strong> live offers</span>
+            <span><strong>4</strong> agent actions</span>
+          </div>
+        </div>
+
+        <div class="hero-visual" aria-hidden="true">
+          <div class="orbit orbit-one"></div>
+          <div class="orbit orbit-two"></div>
+          <div class="hero-product hero-phone"><span>&#128241;</span><small>Smartphones</small></div>
+          <div class="hero-product hero-audio"><span>&#127911;</span><small>Audio deals</small></div>
+          <div class="hero-product hero-laptop"><span>&#128187;</span><small>Laptops</small></div>
+          <div class="agent-orb">
+            <span class="agent-orb-icon"><svg viewBox="0 0 24 24"><path d="M12 3 9.8 8.8 4 11l5.8 2.2L12 19l2.2-5.8L20 11l-5.8-2.2L12 3Z"/></svg></span>
+            <strong>Volt</strong>
+            <small>Your shopping agent</small>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="trust-strip page-shell" aria-label="Shopping benefits">
+      <div class="trust-item">
+        <span class="trust-icon"><svg viewBox="0 0 24 24"><path d="M3 6h11v10H3V6Zm11 4h4l3 3v3h-7v-6ZM7 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm11 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/></svg></span>
+        <span><strong>Free delivery</strong><small>On every demo order</small></span>
+      </div>
+      <div class="trust-item">
+        <span class="trust-icon"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.7L4 8.6M4 4v4.6h4.6"/></svg></span>
+        <span><strong>Easy cancellation</strong><small>Before your order ships</small></span>
+      </div>
+      <div class="trust-item">
+        <span class="trust-icon"><svg viewBox="0 0 24 24"><path d="m7 12 3 3 7-7M12 3l8 3v5c0 5-3.4 8.6-8 10-4.6-1.4-8-5-8-10V6l8-3Z"/></svg></span>
+        <span><strong>Demo checkout</strong><small>No real payment required</small></span>
+      </div>
+      <div class="trust-item trust-agent-item">
+        <span class="trust-icon trust-icon-agent"><svg viewBox="0 0 24 24"><path d="M12 3 9.8 8.8 4 11l5.8 2.2L12 19l2.2-5.8L20 11l-5.8-2.2L12 3Z"/></svg></span>
+        <span><strong>Agent powered</strong><small>Plan, order, track &amp; return</small></span>
+      </div>
+    </section>
+
+    <section class="category-section page-shell" aria-labelledby="categoryTitle">
+      <div class="section-heading compact-heading">
+        <div>
+          <span class="eyebrow">Browse the store</span>
+          <h2 id="categoryTitle">Shop by category</h2>
+        </div>
+      </div>
+      <div class="category-pills" id="categoryPills" role="group" aria-label="Filter by category">
+        <button class="category-pill active" type="button" data-category="All" aria-pressed="true"><span>&#10022;</span> All products</button>
+      </div>
+    </section>
+
+    <section class="store-section page-shell" id="productsSection" aria-labelledby="productsTitle">
+      <div class="store-layout" id="storeLayout">
+        <div class="catalog-column">
+          <div class="catalog-header">
+            <div>
+              <span class="eyebrow">Handpicked electronics</span>
+              <h2 id="productsTitle">Featured deals</h2>
+              <p id="resultsSummary">Loading the catalog&hellip;</p>
+            </div>
+            <div class="catalog-controls">
+              <label class="select-control">
+                <span>Budget</span>
+                <select id="priceFilter" aria-label="Maximum product price">
+                  <option value="">Any price</option>
+                  <option value="5000">Under &#8377;5,000</option>
+                  <option value="10000">Under &#8377;10,000</option>
+                  <option value="25000">Under &#8377;25,000</option>
+                  <option value="50000">Under &#8377;50,000</option>
+                  <option value="75000">Under &#8377;75,000</option>
+                </select>
+              </label>
+              <label class="select-control">
+                <span>Sort</span>
+                <select id="sortProducts" aria-label="Sort products">
+                  <option value="featured">Featured</option>
+                  <option value="discount">Biggest discount</option>
+                  <option value="rating">Top rated</option>
+                  <option value="price-low">Price: low to high</option>
+                  <option value="price-high">Price: high to low</option>
+                </select>
+              </label>
+              <button class="clear-filters" id="clearFilters" type="button" hidden>Clear filters</button>
+            </div>
+          </div>
+
+          <div class="product-grid" id="productGrid" aria-live="polite" aria-busy="true">
+            <div class="product-card skeleton-card"></div>
+            <div class="product-card skeleton-card"></div>
+            <div class="product-card skeleton-card"></div>
+            <div class="product-card skeleton-card"></div>
+            <div class="product-card skeleton-card"></div>
+            <div class="product-card skeleton-card"></div>
+          </div>
+        </div>
+
+        <aside class="agent-panel" id="agentPanel" aria-label="VoltCart shopping agent">
+          <header class="agent-header">
+            <div class="agent-identity">
+              <span class="agent-avatar" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 3 9.8 8.8 4 11l5.8 2.2L12 19l2.2-5.8L20 11l-5.8-2.2L12 3Z"/></svg>
+              </span>
+              <span class="agent-title-copy">
+                <span class="agent-name-row"><strong>Volt</strong><span class="agent-online-dot"></span></span>
+                <small>Shopping agent <span class="action-capable"><span></span> can take actions</span></small>
+              </span>
+            </div>
+            <div class="agent-header-actions">
+              <button class="icon-button" id="resetDemoButton" type="button" aria-label="Reset demo data" title="Reset demo">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.7L4 8.6M4 4v4.6h4.6"/></svg>
+              </button>
+              <button class="icon-button agent-collapse-button" id="collapseAgentButton" type="button" aria-label="Collapse shopping agent" title="Collapse agent">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+              </button>
+              <button class="icon-button agent-mobile-close" id="closeAgentButton" type="button" aria-label="Close shopping agent">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+              </button>
+            </div>
+          </header>
+
+          <div class="agent-collapsed-content" aria-hidden="true">
+            <span>V</span><small>Open agent</small>
+          </div>
+
+          <div class="agent-body" id="agentMessages" role="log" aria-live="polite" aria-relevant="additions">
+            <article class="chat-message assistant-message welcome-message">
+              <div class="message-avatar" aria-hidden="true"><span>&#10022;</span></div>
+              <div class="message-stack">
+                <div class="message-bubble">
+                  <p>Hi <span id="welcomeUserName">Aarav</span>! I can help you shop and take action on your orders.</p>
+                  <div class="capability-list">
+                    <span><svg viewBox="0 0 24 24"><path d="m9 11 2 2 4-4M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z"/></svg> Find the right product</span>
+                    <span><svg viewBox="0 0 24 24"><path d="m9 11 2 2 4-4M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z"/></svg> Place a demo order</span>
+                    <span><svg viewBox="0 0 24 24"><path d="m9 11 2 2 4-4M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z"/></svg> Track or cancel it</span>
+                    <span><svg viewBox="0 0 24 24"><path d="m9 11 2 2 4-4M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z"/></svg> Build plans for your approval</span>
+                    <span><svg viewBox="0 0 24 24"><path d="m9 11 2 2 4-4M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z"/></svg> Return or exchange delivered items</span>
+                    <span><svg viewBox="0 0 24 24"><path d="m9 11 2 2 4-4M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z"/></svg> Summarize verified reviews</span>
+                    <span><svg viewBox="0 0 24 24"><path d="m9 11 2 2 4-4M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z"/></svg> Create and escalate support tickets</span>
+                    <span><svg viewBox="0 0 24 24"><path d="m9 11 2 2 4-4M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z"/></svg> Compare products and manage my cart</span>
+                    <span><svg viewBox="0 0 24 24"><path d="m9 11 2 2 4-4M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z"/></svg> Remember or erase shopping preferences</span>
+                  </div>
+                </div>
+                <span class="message-time">Ready now</span>
+              </div>
+            </article>
+
+            <div class="prompt-section" id="suggestedPrompts">
+              <span class="prompt-label">Try asking me</span>
+              <div class="prompt-chips">
+                <button type="button" data-prompt="Show me today's best electronics deals"><span>&#128293;</span> Today&rsquo;s best deals</button>
+                <button type="button" data-prompt="Place an order for Sony WH-CH720N Headphones"><span>&#128722;</span> Order Sony headphones</button>
+                <button type="button" data-prompt="Track my latest order"><span>&#128666;</span> Track my latest order</button>
+                <button type="button" data-prompt="Cancel my Galaxy Watch6 order"><span>&#10005;</span> Cancel watch order</button>
+                <button type="button" data-prompt="Build a work-from-home setup under 80000 rupees with a laptop, mouse and headphones and wait for my approval"><span>&#10022;</span> Plan a setup for me</button>
+                <button type="button" data-prompt="Return my delivered boAt Airdopes 141"><span>&#8630;</span> Return delivered earbuds</button>
+                <button type="button" data-prompt="Exchange my delivered boAt Airdopes 141"><span>&#8644;</span> Exchange delivered earbuds</button>
+                <button type="button" data-prompt="Summarize verified reviews for Sony WH-CH720N Headphones"><span>&#9733;</span> Summarize product reviews</button>
+                <button type="button" data-prompt="Show my support tickets"><span>&#127911;</span> Show support tickets</button>
+                <button type="button" data-prompt="Compare Sony WH-CH720N, JBL Flip 6 and OnePlus Buds 3 for calls, travel and battery life"><span>&#8644;</span> Compare audio products</button>
+                <button type="button" data-prompt="Add the cheaper Sony headphones to my cart and remove the mouse"><span>&#128722;</span> Manage cart</button>
+                <button type="button" data-prompt="Remember my budget is 80000 rupees, I prefer Sony, and exclude Apple"><span>&#129504;</span> Remember preferences</button>
+                <button type="button" data-prompt="Do any of my orders need proactive assistance?"><span>!</span> Check delivery delays</button>
+              </div>
+            </div>
+          </div>
+
+          <footer class="agent-footer">
+            <form class="agent-form" id="agentForm">
+              <label class="sr-only" for="agentInput">Message the shopping agent</label>
+              <textarea id="agentInput" rows="1" maxlength="600" placeholder="Ask me to shop, summarize reviews, order, or get support&hellip;"></textarea>
+              <button class="send-button" id="sendAgentButton" type="submit" aria-label="Send message" disabled>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 4 17 8-17 8 3-8-3-8Zm3 8h14"/></svg>
+              </button>
+            </form>
+            <div class="agent-footer-note">
+              <span><span class="footer-status-dot"></span> <span id="agentModeLabel">Connecting&hellip;</span></span>
+              <span>Demo orders only</span>
+            </div>
+          </footer>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <button class="agent-fab" id="agentFab" type="button" aria-label="Open shopping agent">
+    <span class="fab-icon"><svg viewBox="0 0 24 24"><path d="M12 3 9.8 8.8 4 11l5.8 2.2L12 19l2.2-5.8L20 11l-5.8-2.2L12 3Z"/></svg></span>
+    <span><strong>Ask Volt</strong><small>Shop with AI</small></span>
+  </button>
+
+  <div class="mobile-agent-backdrop" id="mobileAgentBackdrop" hidden></div>
+
+  <div class="drawer-layer" id="ordersLayer" hidden>
+    <button class="drawer-backdrop" type="button" data-close-orders aria-label="Close orders"></button>
+    <aside class="orders-drawer" id="ordersDrawer" role="dialog" aria-modal="true" aria-labelledby="ordersTitle" tabindex="-1">
+      <header class="drawer-header">
+        <div>
+          <span class="eyebrow">Demo shopper &middot; <span id="drawerUserName">Aarav Sharma</span></span>
+          <h2 id="ordersTitle">Your orders</h2>
+        </div>
+        <button class="icon-button" type="button" data-close-orders aria-label="Close orders">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+        </button>
+      </header>
+      <div class="order-tabs" id="orderTabs" role="tablist" aria-label="Filter orders">
+        <button class="active" type="button" role="tab" data-order-filter="all" aria-selected="true">All</button>
+        <button type="button" role="tab" data-order-filter="active" aria-selected="false">Active</button>
+        <button type="button" role="tab" data-order-filter="delivered" aria-selected="false">Delivered</button>
+        <button type="button" role="tab" data-order-filter="cancelled" aria-selected="false">Cancelled</button>
+      </div>
+      <div class="orders-list" id="ordersList" aria-live="polite">
+        <div class="drawer-loading"><span class="spinner"></span> Loading your orders&hellip;</div>
+      </div>
+      <footer class="drawer-footer">
+        <span><svg viewBox="0 0 24 24"><path d="m9 12 2 2 4-4M12 3l8 3v5c0 5-3.4 8.6-8 10-4.6-1.4-8-5-8-10V6l8-3Z"/></svg> Local demo data only</span>
+        <button id="askAboutOrdersButton" type="button">Ask Volt about an order</button>
+      </footer>
+    </aside>
+  </div>
+
+  <div class="modal-layer" id="productModalLayer" hidden>
+    <button class="modal-backdrop" type="button" data-close-product aria-label="Close product details"></button>
+    <section class="product-modal" id="productModal" role="dialog" aria-modal="true" aria-labelledby="productModalTitle" tabindex="-1">
+      <button class="icon-button modal-close" type="button" data-close-product aria-label="Close product details">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+      </button>
+      <div id="productModalContent"></div>
+    </section>
+  </div>
+
+  <div class="drawer-layer" id="cartLayer" hidden>
+    <button class="drawer-backdrop" type="button" data-close-cart aria-label="Close cart"></button>
+    <aside class="orders-drawer" id="cartDrawer" role="dialog" aria-modal="true" aria-labelledby="cartTitle" tabindex="-1">
+      <header class="drawer-header"><div><span class="eyebrow">Persistent SQLite cart</span><h2 id="cartTitle">Your cart</h2></div><button class="icon-button" type="button" data-close-cart aria-label="Close cart"><svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button></header>
+      <div class="orders-list" id="cartItems" aria-live="polite"></div>
+      <footer class="drawer-footer cart-footer"><div><small>Order total</small><strong id="cartTotal">&#8377;0</strong></div><button id="checkoutWithAgentButton" type="button">Checkout with Volt</button></footer>
+    </aside>
+  </div>
+
+  <div class="modal-layer auth-layer" id="authLayer" hidden>
+    <section class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+      <div class="auth-brand"><span class="brand-mark"><svg viewBox="0 0 24 24"><path d="M13.2 2 5.7 13h5.6l-.5 9L18.3 11h-5.6l.5-9Z"/></svg></span><div><strong>VoltCart</strong><small>AI commerce classroom demo</small></div></div>
+      <h2 id="authTitle">Welcome back</h2>
+      <p id="authSubtitle">Sign in to keep carts, orders and support requests separate.</p>
+      <div class="auth-tabs" role="tablist"><button class="active" type="button" data-auth-tab="login">Sign in</button><button type="button" data-auth-tab="register">Register</button></div>
+      <form id="authForm" class="auth-form">
+        <label class="register-field" hidden>Full name<input id="authName" autocomplete="name"></label>
+        <label>Email<input id="authEmail" type="email" autocomplete="email" required value="aarav@voltcart.demo"></label>
+        <label class="register-field" hidden>Phone<input id="authPhone" inputmode="numeric" autocomplete="tel"></label>
+        <label>Password<input id="authPassword" type="password" autocomplete="current-password" required value="Demo@123"></label>
+        <p class="auth-error" id="authError" role="alert"></p>
+        <button class="button" id="authSubmit" type="submit">Sign in</button>
+      </form>
+      <button class="auth-link" id="forgotPasswordButton" type="button">Forgot password?</button>
+      <div class="demo-credentials"><strong>Demo account</strong><span>aarav@voltcart.demo</span><span>Password: Demo@123</span></div>
+    </section>
+  </div>
+
+  <div class="modal-layer" id="accountLayer" hidden>
+    <section class="auth-modal account-modal" role="dialog" aria-modal="true" aria-labelledby="accountTitle">
+      <button class="icon-button modal-close" id="closeAccountButton" type="button" aria-label="Close account"><svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+      <span class="eyebrow">SQLite user profile</span><h2 id="accountTitle">Your account</h2><div id="accountDetails"></div>
+      <form id="preferencesForm" class="auth-form preferences-form">
+        <h3>Agent memory controls</h3>
+        <label class="memory-toggle"><input id="preferenceEnabled" type="checkbox" checked> Allow Volt to use these preferences</label>
+        <label>Shopping budget (&#8377;)<input id="preferenceBudget" type="number" min="1000" max="1000000" step="1000"></label>
+        <label>Favourite brands<input id="preferenceBrands" placeholder="Sony, Dell"></label>
+        <label>Excluded brands<input id="preferenceExcluded" placeholder="Apple"></label>
+        <label>Delivery location<input id="preferenceLocation" placeholder="Bengaluru"></label>
+        <label>Delivery urgency<input id="preferenceUrgency" placeholder="This week"></label>
+        <div class="memory-actions"><button class="button" type="submit">Save memory</button><button class="auth-link" id="clearPreferencesButton" type="button">Erase memory</button></div>
+      </form>
+      <button class="button" id="logoutButton" type="button">Sign out</button>
+    </section>
+  </div>
+
+  <div class="modal-layer" id="insightsLayer" hidden>
+    <section class="insights-modal" role="dialog" aria-modal="true" aria-labelledby="insightsTitle">
+      <button class="icon-button modal-close" id="closeInsightsButton" type="button" aria-label="Close insights"><svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+      <span class="eyebrow">Observable AI testing</span><h2 id="insightsTitle">Agent traces, cost and latency</h2>
+      <p>Every turn links the UI, API, agent tools and SQLite record with a correlation ID.</p>
+      <div class="trace-metrics" id="traceMetrics"></div>
+      <div class="trace-toolbar"><button class="button" id="refreshTracesButton" type="button">Refresh</button><a class="button secondary-button" href="/api/agent/traces/export?format=jsonl" download>Download JSONL</a><a class="button secondary-button" href="/api/agent/traces/export?format=csv" download>Download CSV</a></div>
+      <div class="trace-list" id="traceList"></div>
+    </section>
+  </div>
+
+  <div class="toast-region" id="toastRegion" aria-live="polite" aria-atomic="false"></div>
+
+  <script src="/app.js" defer></script>
+</body>
+</html>

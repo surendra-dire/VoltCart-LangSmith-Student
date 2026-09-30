@@ -1,0 +1,663 @@
+{
+  "info": {
+    "_postman_id": "5bf49b75-f195-4c3f-a131-9d183934aa44",
+    "name": "VoltCart Agent API - Local Classroom Demo",
+    "description": "Run app.py, then execute these requests from top to bottom. Sign in first so Postman stores the local session cookie. The collection demonstrates authenticated agent, cart, order, support and review flows. No OpenAI key is sent from Postman; the Python server reads it from api_credentials.json.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.collectionVariables.set('message_id', 'postman-' + Date.now() + '-' + Math.random().toString(16).slice(2));"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {"key": "base_url", "value": "http://127.0.0.1:8000", "type": "string"},
+    {"key": "session_id", "value": "postman-classroom-session", "type": "string"},
+    {"key": "message_id", "value": "", "type": "string"},
+    {"key": "order_message_id", "value": "", "type": "string"},
+    {"key": "created_order_id", "value": "", "type": "string"},
+    {"key": "approval_token", "value": "", "type": "string"},
+    {"key": "approved_order_id", "value": "", "type": "string"},
+    {"key": "high_value_order_id", "value": "", "type": "string"},
+    {"key": "return_request_id", "value": "", "type": "string"},
+    {"key": "exchange_request_id", "value": "", "type": "string"},
+    {"key": "support_ticket_id", "value": "", "type": "string"},
+    {"key": "trace_id", "value": "", "type": "string"},
+    {"key": "last_agent_mode", "value": "", "type": "string"}
+  ],
+  "item": [
+    {
+      "name": "1. Setup and catalog",
+      "item": [
+        {
+          "name": "API index",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api",
+            "description": "Lists the API endpoints available in this local demo."
+          },
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('API index returns 200', function () { pm.response.to.have.status(200); });",
+            "pm.test('Agent chat endpoint is advertised', function () { var data = pm.response.json(); pm.expect(data.endpoints.some(function (item) { return item.path === '/api/chat'; })).to.be.true; });"
+          ]}}]
+        },
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/health"
+          },
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('Server is healthy', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().ok).to.eql(true); });"
+          ]}}]
+        },
+        {
+          "name": "Sign in as demo user",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"aarav@voltcart.demo\",\n  \"password\": \"Demo@123\"\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": "{{base_url}}/api/auth/login",
+            "description": "Creates the local HTTP-only session cookie used by protected requests."
+          },
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('Demo login succeeds', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().user.email).to.eql('aarav@voltcart.demo'); });"
+          ]}}]
+        },
+        {
+          "name": "Safe agent configuration",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/config",
+            "description": "Shows model/mode metadata but never returns the API key."
+          },
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('Configuration is safe', function () { var data = pm.response.json(); pm.expect(data).to.have.property('model'); pm.expect(data).not.to.have.property('OPENAI_API_KEY'); });"
+          ]}}]
+        },
+        {
+          "name": "Search in-stock audio under INR 10,000",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/products?search=wireless&category=Audio&max_price=10000&in_stock=true&limit=5"
+          },
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('Products match the filter', function () { var data = pm.response.json(); pm.response.to.have.status(200); pm.expect(data.products).to.be.an('array'); data.products.forEach(function (p) { pm.expect(p.price).to.be.below(10001); pm.expect(p.available_stock).to.be.above(0); }); });"
+          ]}}]
+        },
+        {
+          "name": "Get Sony headphones by product ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/products/AUD-301"
+          },
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('Correct product is returned', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().product.id).to.eql('AUD-301'); });"
+          ]}}]
+        }
+      ]
+    },
+    {
+      "name": "2. Agent tool flows",
+      "item": [
+        {
+          "name": "Agent recommends products",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Recommend wireless headphones under ₹10,000\",\n  \"session_id\": \"{{session_id}}\",\n  \"message_id\": \"{{message_id}}\"\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": "{{base_url}}/api/chat"
+          },
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "var data = pm.response.json();",
+            "pm.test('Agent responded with actions', function () { pm.response.to.have.status(200); pm.expect(data.actions).to.be.an('array'); });",
+            "pm.collectionVariables.set('last_agent_mode', data.mode || '');",
+            "console.log('Agent mode for this turn:', data.mode, 'Model:', data.model, 'Warning:', data.warning || 'none');"
+          ]}}]
+        },
+        {
+          "name": "Agent places an order",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Place an order for 1 x OnePlus Buds 3\",\n  \"session_id\": \"{{session_id}}\",\n  \"message_id\": \"{{message_id}}\"\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": "{{base_url}}/api/chat",
+            "description": "Stores the returned order ID and message ID for later tracking, cancellation, and an idempotency retry."
+          },
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "var data = pm.response.json();",
+            "var order = data.entities && data.entities.order;",
+            "pm.test('Order tool succeeded', function () { pm.response.to.have.status(200); pm.expect(order).to.be.an('object'); pm.expect(data.actions.some(function (a) { return a.tool === 'place_order' && a.result && a.result.ok === true; })).to.be.true; });",
+            "if (order) { pm.collectionVariables.set('created_order_id', order.id); }",
+            "pm.collectionVariables.set('order_message_id', pm.collectionVariables.get('message_id'));",
+            "pm.collectionVariables.set('last_agent_mode', data.mode || '');",
+            "console.log('Created order:', order ? order.id : 'none', 'Agent mode:', data.mode);"
+          ]}}]
+        },
+        {
+          "name": "Retry same order request (idempotency demo)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Place an order for 1 x OnePlus Buds 3\",\n  \"session_id\": \"{{session_id}}\",\n  \"message_id\": \"{{order_message_id}}\"\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": "{{base_url}}/api/chat",
+            "description": "The same session, message and message_id must return the original order rather than create a duplicate."
+          },
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "var data = pm.response.json(); var order = data.entities && data.entities.order;",
+            "pm.test('Retry returned the original order', function () { pm.response.to.have.status(200); pm.expect(order.id).to.eql(pm.collectionVariables.get('created_order_id')); });"
+          ]}}]
+        },
+        {
+          "name": "Agent tracks the created order",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Track order {{created_order_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"message_id\": \"{{message_id}}\"\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": "{{base_url}}/api/chat"
+          },
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "var data = pm.response.json();",
+            "pm.test('Status tool returned the same order', function () { pm.response.to.have.status(200); pm.expect(data.entities.order.id).to.eql(pm.collectionVariables.get('created_order_id')); });"
+          ]}}]
+        },
+        {
+          "name": "Agent cancels the created order",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Cancel order {{created_order_id}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"message_id\": \"{{message_id}}\"\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": "{{base_url}}/api/chat"
+          },
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "var data = pm.response.json();",
+            "pm.test('Cancel tool succeeded', function () { pm.response.to.have.status(200); pm.expect(data.entities.order.status).to.eql('Cancelled'); pm.expect(data.actions.some(function (a) { return a.tool === 'cancel_order' && a.result && a.result.ok === true; })).to.be.true; });"
+          ]}}]
+        }
+      ]
+    },
+    {
+      "name": "3. Verify basic flow and reset",
+      "item": [
+        {
+          "name": "Get the created order directly",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/orders/{{created_order_id}}"
+          },
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('Order is cancelled', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().order.status).to.eql('Cancelled'); });"
+          ]}}]
+        },
+        {
+          "name": "List all demo-user orders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/orders"
+          },
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('Orders are returned', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().orders).to.be.an('array'); });"
+          ]}}]
+        },
+        {
+          "name": "Clear Postman agent session",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session_id\": \"{{session_id}}\"\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": "{{base_url}}/api/chat/clear"
+          },
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('Session was cleared', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().ok).to.eql(true); });"
+          ]}}]
+        },
+        {
+          "name": "Reset demo orders",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session_id\": \"{{session_id}}\"\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": "{{base_url}}/api/reset",
+            "description": "Restores the three seeded classroom orders before the advanced-flow demonstrations."
+          },
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('Demo was reset', function () { var data = pm.response.json(); pm.response.to.have.status(200); pm.expect(data.ok).to.eql(true); pm.expect(data.orders.length).to.eql(3); });"
+          ]}}]
+        }
+      ]
+    },
+    {
+      "name": "4. Budget mission and approval checkpoints",
+      "item": [
+        {
+          "name": "Build deterministic gaming setup under INR 90,000",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Build a gaming setup under 90000 with a laptop, mouse and headphones\",\n  \"session_id\": \"{{session_id}}\",\n  \"message_id\": \"{{message_id}}\"\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": "{{base_url}}/api/chat",
+            "description": "Creates a persisted Pending shopping_plan. It must not create an order."
+          },
+          "event": [
+            {"listen": "prerequest", "script": {"type": "text/javascript", "exec": [
+              "pm.collectionVariables.set('approval_token', '');",
+              "pm.collectionVariables.set('approved_order_id', '');"
+            ]}},
+            {"listen": "test", "script": {"type": "text/javascript", "exec": [
+              "var data = pm.response.json();",
+              "var plan = data.entities && data.entities.shopping_plan;",
+              "pm.test('Mission produced a pending plan, not an order', function () { pm.response.to.have.status(200); pm.expect(plan).to.be.an('object'); pm.expect(plan.status).to.eql('Pending'); pm.expect(plan.items.length).to.be.at.least(2); pm.expect(plan.total).to.be.at.most(90000); pm.expect(data.entities.order).to.eql(undefined); });",
+              "pm.test('Plan contains a separate approval command', function () { pm.expect(plan.token).to.match(/^APR-[A-Z0-9]+$/); pm.expect(plan.approval_message).to.eql('Approve ' + plan.token); });",
+              "if (plan && plan.token) { pm.collectionVariables.set('approval_token', plan.token); }",
+              "console.log('Captured mission approval token:', plan ? plan.token : 'none');"
+            ]}}
+          ]
+        },
+        {
+          "name": "Inspect pending shopping plan",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/purchase-proposals/{{approval_token}}",
+            "description": "Reads the exact plan captured from the previous response."
+          },
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "var plan = pm.response.json().shopping_plan;",
+            "pm.test('Pending proposal matches captured token', function () { pm.response.to.have.status(200); pm.expect(plan.token).to.eql(pm.collectionVariables.get('approval_token')); pm.expect(plan.status).to.eql('Pending'); pm.expect(plan.order_id).to.eql(null); });"
+          ]}}]
+        },
+        {
+          "name": "Approve mission in a later turn",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Approve {{approval_token}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"message_id\": \"{{message_id}}\"\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": "{{base_url}}/api/chat",
+            "description": "Uses a new message_id and the exact token. Prices and stock are revalidated before one bundle order is committed."
+          },
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "var data = pm.response.json();",
+            "var order = data.entities && data.entities.order;",
+            "pm.test('Approval created one bundle order', function () { pm.response.to.have.status(200); pm.expect(order).to.be.an('object'); pm.expect(order.approval_token).to.eql(pm.collectionVariables.get('approval_token')); pm.expect(order.items.length).to.be.at.least(2); pm.expect(data.actions.some(function (a) { return a.tool === 'approve_purchase' && a.result && a.result.ok === true; })).to.be.true; });",
+            "if (order) { pm.collectionVariables.set('approved_order_id', order.id); }",
+            "console.log('Approved mission order:', order ? order.id : 'none');"
+          ]}}]
+        },
+        {
+          "name": "Inspect approved mission plan",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/purchase-proposals/{{approval_token}}"
+          },
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "var plan = pm.response.json().shopping_plan;",
+            "pm.test('Proposal is approved and linked to the order', function () { pm.response.to.have.status(200); pm.expect(plan.status).to.eql('Approved'); pm.expect(plan.order_id).to.eql(pm.collectionVariables.get('approved_order_id')); });"
+          ]}}]
+        },
+        {
+          "name": "Request high-value MacBook order",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Order MacBook Air M2\",\n  \"session_id\": \"{{session_id}}\",\n  \"message_id\": \"{{message_id}}\"\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": "{{base_url}}/api/chat",
+            "description": "The ₹84,990 item is above the ₹50,000 threshold, so this prepares a plan instead of placing an order."
+          },
+          "event": [
+            {"listen": "prerequest", "script": {"type": "text/javascript", "exec": [
+              "pm.collectionVariables.set('approval_token', '');",
+              "pm.collectionVariables.set('high_value_order_id', '');"
+            ]}},
+            {"listen": "test", "script": {"type": "text/javascript", "exec": [
+              "var data = pm.response.json();",
+              "var plan = data.entities && data.entities.shopping_plan;",
+              "pm.test('High-value item stopped at approval', function () { pm.response.to.have.status(200); pm.expect(plan).to.be.an('object'); pm.expect(plan.status).to.eql('Pending'); pm.expect(plan.total).to.be.above(50000); pm.expect(data.entities.order).to.eql(undefined); });",
+              "if (plan && plan.token) { pm.collectionVariables.set('approval_token', plan.token); }"
+            ]}}
+          ]
+        },
+        {
+          "name": "Approve high-value purchase",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Approve {{approval_token}}\",\n  \"session_id\": \"{{session_id}}\",\n  \"message_id\": \"{{message_id}}\"\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": "{{base_url}}/api/chat"
+          },
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "var data = pm.response.json(); var order = data.entities && data.entities.order;",
+            "pm.test('High-value approval placed the exact product', function () { pm.response.to.have.status(200); pm.expect(order.approval_token).to.eql(pm.collectionVariables.get('approval_token')); pm.expect(order.items[0].product_id).to.eql('LAP-204'); });",
+            "if (order) { pm.collectionVariables.set('high_value_order_id', order.id); }"
+          ]}}]
+        },
+        {
+          "name": "Get approved high-value order",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/orders/{{high_value_order_id}}"
+          },
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('Approved MacBook order is readable', function () { var order = pm.response.json().order; pm.response.to.have.status(200); pm.expect(order.id).to.eql(pm.collectionVariables.get('high_value_order_id')); pm.expect(order.approval_token).to.eql(pm.collectionVariables.get('approval_token')); });"
+          ]}}]
+        }
+      ]
+    },
+    {
+      "name": "5. Return and exchange service flows",
+      "item": [
+        {
+          "name": "Check return eligibility without changing data",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Can I return order ORD-DEMO-1001?\",\n  \"session_id\": \"{{session_id}}\",\n  \"message_id\": \"{{message_id}}\"\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": "{{base_url}}/api/chat"
+          },
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "var data = pm.response.json();",
+            "var check = data.actions.find(function (a) { return a.tool === 'check_return_eligibility'; });",
+            "pm.test('Delivered seed order is eligible', function () { pm.response.to.have.status(200); pm.expect(check).to.be.an('object'); pm.expect(check.result.eligible).to.eql(true); pm.expect(check.result.window_days).to.eql(7); });",
+            "pm.test('Informational question created no request', function () { pm.expect(data.entities.return_request).to.eql(undefined); pm.expect(data.actions.some(function (a) { return a.tool === 'create_return_request' && a.result && a.result.ok; })).to.eql(false); });"
+          ]}}]
+        },
+        {
+          "name": "Create refund return request",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Return order ORD-DEMO-1001 because the earbuds are defective\",\n  \"session_id\": \"{{session_id}}\",\n  \"message_id\": \"{{message_id}}\"\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": "{{base_url}}/api/chat"
+          },
+          "event": [
+            {"listen": "prerequest", "script": {"type": "text/javascript", "exec": [
+              "pm.collectionVariables.set('return_request_id', '');"
+            ]}},
+            {"listen": "test", "script": {"type": "text/javascript", "exec": [
+              "var data = pm.response.json(); var request = data.entities && data.entities.return_request;",
+              "pm.test('Refund return was created', function () { pm.response.to.have.status(200); pm.expect(request.id).to.match(/^RET-/); pm.expect(request.type).to.eql('Return'); pm.expect(request.resolution).to.eql('refund'); pm.expect(request.status).to.eql('Requested'); pm.expect(request.refund_amount).to.be.above(0); });",
+              "if (request) { pm.collectionVariables.set('return_request_id', request.id); }",
+              "console.log('Captured return request:', request ? request.id : 'none');"
+            ]}}
+          ]
+        },
+        {
+          "name": "Track refund return in agent chat",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Track return request {{return_request_id}} for order ORD-DEMO-1001\",\n  \"session_id\": \"{{session_id}}\",\n  \"message_id\": \"{{message_id}}\"\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": "{{base_url}}/api/chat"
+          },
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "var request = pm.response.json().entities.return_request;",
+            "pm.test('Agent returned the captured return request', function () { pm.response.to.have.status(200); pm.expect(request.id).to.eql(pm.collectionVariables.get('return_request_id')); pm.expect(request.status).to.eql('Requested'); });"
+          ]}}]
+        },
+        {
+          "name": "Get refund return directly",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/service-requests/{{return_request_id}}"
+          },
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('Direct service request matches captured ID', function () { var request = pm.response.json().service_request; pm.response.to.have.status(200); pm.expect(request.id).to.eql(pm.collectionVariables.get('return_request_id')); pm.expect(request.resolution).to.eql('refund'); });"
+          ]}}]
+        },
+        {
+          "name": "List service requests for delivered order",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/service-requests?order_id=ORD-DEMO-1001"
+          },
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "var data = pm.response.json();",
+            "pm.test('Order-filtered list includes captured return', function () { pm.response.to.have.status(200); pm.expect(data.service_requests.some(function (r) { return r.id === pm.collectionVariables.get('return_request_id'); })).to.eql(true); });"
+          ]}}]
+        },
+        {
+          "name": "Reset between return and exchange examples",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session_id\": \"{{session_id}}\"\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": "{{base_url}}/api/reset",
+            "description": "The seeded delivered order has one unit, so reset clears the return before demonstrating a replacement exchange."
+          },
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('Reset restored the three teaching orders', function () { var data = pm.response.json(); pm.response.to.have.status(200); pm.expect(data.ok).to.eql(true); pm.expect(data.orders.length).to.eql(3); });"
+          ]}}]
+        },
+        {
+          "name": "Verify reset cleared service requests",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/service-requests?order_id=ORD-DEMO-1001"
+          },
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('No service requests remain after reset', function () { var data = pm.response.json(); pm.response.to.have.status(200); pm.expect(data.count).to.eql(0); });"
+          ]}}]
+        },
+        {
+          "name": "Create same-product replacement exchange",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Exchange my delivered boAt Airdopes 141 for a replacement\",\n  \"session_id\": \"{{session_id}}\",\n  \"message_id\": \"{{message_id}}\"\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": "{{base_url}}/api/chat"
+          },
+          "event": [
+            {"listen": "prerequest", "script": {"type": "text/javascript", "exec": [
+              "pm.collectionVariables.set('exchange_request_id', '');"
+            ]}},
+            {"listen": "test", "script": {"type": "text/javascript", "exec": [
+              "var data = pm.response.json(); var request = data.entities && data.entities.return_request;",
+              "pm.test('Replacement exchange was created', function () { pm.response.to.have.status(200); pm.expect(request.id).to.match(/^EXC-/); pm.expect(request.type).to.eql('Exchange'); pm.expect(request.resolution).to.eql('replacement'); pm.expect(request.status).to.eql('Requested'); pm.expect(request.replacement_eta).to.be.a('string'); });",
+              "if (request) { pm.collectionVariables.set('exchange_request_id', request.id); }"
+            ]}}
+          ]
+        },
+        {
+          "name": "Track exchange in agent chat",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Track exchange request {{exchange_request_id}} for order ORD-DEMO-1001\",\n  \"session_id\": \"{{session_id}}\",\n  \"message_id\": \"{{message_id}}\"\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": "{{base_url}}/api/chat"
+          },
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "var request = pm.response.json().entities.return_request;",
+            "pm.test('Agent returned the captured exchange request', function () { pm.response.to.have.status(200); pm.expect(request.id).to.eql(pm.collectionVariables.get('exchange_request_id')); pm.expect(request.resolution).to.eql('replacement'); });"
+          ]}}]
+        },
+        {
+          "name": "Get exchange directly",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/service-requests/{{exchange_request_id}}"
+          },
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('Direct exchange request matches captured ID', function () { var request = pm.response.json().service_request; pm.response.to.have.status(200); pm.expect(request.id).to.eql(pm.collectionVariables.get('exchange_request_id')); pm.expect(request.type).to.eql('Exchange'); });"
+          ]}}]
+        },
+        {
+          "name": "Final reset",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session_id\": \"{{session_id}}\"\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": "{{base_url}}/api/reset",
+            "description": "Leaves the demo in its original three-order state and clears all plans and service requests."
+          },
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('Final reset succeeded', function () { var data = pm.response.json(); pm.response.to.have.status(200); pm.expect(data.ok).to.eql(true); pm.expect(data.orders.length).to.eql(3); });"
+          ]}}]
+        }
+      ]
+    },
+    {
+      "name": "5. Cart, reviews and support",
+      "item": [
+        {
+          "name": "Add item to persistent cart",
+          "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"product_id\": \"AUD-301\",\n  \"quantity\": 2\n}", "options": {"raw": {"language": "json"}}}, "url": "{{base_url}}/api/cart/items"},
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["pm.test('Cart is persisted with calculated total', function () { var c=pm.response.json().cart; pm.response.to.have.status(201); pm.expect(c.item_count).to.eql(2); pm.expect(c.total).to.be.above(0); });"]}}]
+        },
+        {
+          "name": "Read signed-in user cart",
+          "request": {"method": "GET", "header": [], "url": "{{base_url}}/api/cart"},
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["pm.test('Cart belongs to the current session', function () { pm.response.to.have.status(200); pm.expect(pm.response.json().cart.items).to.be.an('array'); });"]}}]
+        },
+        {
+          "name": "Agent summarizes verified reviews",
+          "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"message\": \"Summarize verified reviews for Sony WH-CH720N Headphones\",\n  \"session_id\": \"{{session_id}}\",\n  \"message_id\": \"{{message_id}}\"\n}", "options": {"raw": {"language": "json"}}}, "url": "{{base_url}}/api/chat"},
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["pm.test('Review summary is grounded', function () { var d=pm.response.json(); pm.response.to.have.status(200); pm.expect(d.entities.review_summary.product.id).to.eql('AUD-301'); });"]}}]
+        },
+        {
+          "name": "Agent creates damaged-item ticket",
+          "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"message\": \"Create a support ticket for order ORD-DEMO-1001: my delivered earbuds are damaged and the right side has no sound\",\n  \"session_id\": \"{{session_id}}\",\n  \"message_id\": \"{{message_id}}\"\n}", "options": {"raw": {"language": "json"}}}, "url": "{{base_url}}/api/chat"},
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["var d=pm.response.json(); pm.test('Support ticket was created', function () { pm.response.to.have.status(200); pm.expect(d.entities.ticket.id).to.match(/^SUP-/); }); if(d.entities.ticket){pm.collectionVariables.set('support_ticket_id',d.entities.ticket.id);}"]}}]
+        },
+        {
+          "name": "Agent escalates ticket to human",
+          "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"message\": \"Escalate ticket {{support_ticket_id}} to a human agent\",\n  \"session_id\": \"{{session_id}}\",\n  \"message_id\": \"{{message_id}}\"\n}", "options": {"raw": {"language": "json"}}}, "url": "{{base_url}}/api/chat"},
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["pm.test('Human handoff was simulated', function () { var t=pm.response.json().entities.ticket; pm.response.to.have.status(200); pm.expect(t.status).to.eql('Escalated'); pm.expect(t.assigned_to).to.include('Human agent'); });"]}}]
+        }
+      ]
+    },
+    {
+      "name": "6. Advanced agent testing and observability",
+      "item": [
+        {
+          "name": "Agent compares grounded products",
+          "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"message\": \"Compare Sony WH-CH720N Headphones, JBL Flip 6 Speaker and OnePlus Buds 3 for calls, travel and battery life\",\n  \"session_id\": \"{{session_id}}\",\n  \"message_id\": \"{{message_id}}\"\n}", "options": {"raw": {"language": "json"}}}, "url": "{{base_url}}/api/chat"},
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["var d=pm.response.json(); pm.test('Comparison is grounded and traced', function(){pm.response.to.have.status(200); pm.expect(d.entities.products.length).to.be.above(1); pm.expect(d.trace.correlation_id).to.match(/^COR-/);}); pm.collectionVariables.set('trace_id',d.trace.id);"]}}]
+        },
+        {
+          "name": "Save visible preference memory",
+          "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"enabled\": true,\n  \"budget\": 80000,\n  \"favorite_brands\": [\"Sony\"],\n  \"excluded_brands\": [\"Apple\"],\n  \"delivery_location\": \"Bengaluru\",\n  \"delivery_urgency\": \"this week\"\n}", "options": {"raw": {"language": "json"}}}, "url": "{{base_url}}/api/preferences"},
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["pm.test('Preferences are stored per user', function(){var p=pm.response.json().preferences; pm.response.to.have.status(200); pm.expect(p.budget).to.eql(80000); pm.expect(p.excluded_brands).to.include('Apple');});"]}}]
+        },
+        {
+          "name": "Read proactive delivery assistance",
+          "request": {"method": "GET", "header": [], "url": "{{base_url}}/api/proactive-assistance"},
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["pm.test('Seeded delayed order is detected', function(){var d=pm.response.json(); pm.response.to.have.status(200); pm.expect(d.count).to.be.above(0);});"]}}]
+        },
+        {
+          "name": "Read trace by ID",
+          "request": {"method": "GET", "header": [], "url": "{{base_url}}/api/agent/traces/{{trace_id}}"},
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["pm.test('Trace links intent, tools, guardrails and usage', function(){var t=pm.response.json().trace; pm.response.to.have.status(200); pm.expect(t.intent).to.be.a('string'); pm.expect(t.actions).to.be.an('array'); pm.expect(t.guardrails).to.be.an('array');});"]}}]
+        },
+        {
+          "name": "Replay trace safely",
+          "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"mode\": \"local\"\n}", "options": {"raw": {"language": "json"}}}, "url": "{{base_url}}/api/agent/traces/{{trace_id}}/replay"},
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["pm.test('Replay is explicitly read-only', function(){var d=pm.response.json(); pm.response.to.have.status(200); pm.expect(d.replay.read_only).to.eql(true);});"]}}]
+        },
+        {
+          "name": "Read cost and latency metrics",
+          "request": {"method": "GET", "header": [], "url": "{{base_url}}/api/agent/metrics"},
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["pm.test('Metrics aggregate stored traces', function(){var m=pm.response.json().metrics; pm.response.to.have.status(200); pm.expect(m.scenario_count).to.be.above(0);});"]}}]
+        },
+        {
+          "name": "Export DeepEval JSONL traces",
+          "request": {"method": "GET", "header": [], "url": "{{base_url}}/api/agent/traces/export?format=jsonl"},
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": ["pm.test('JSONL export is downloadable', function(){pm.response.to.have.status(200); pm.expect(pm.response.headers.get('Content-Disposition')).to.include('voltcart-agent-traces.jsonl');});"]}}]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+[
+  {"inputs": {"message": "Recommend headphones under 10000"}, "outputs": {"max_price": 10000, "min_products": 1}},
+  {"inputs": {"message": "Recommend headphones under 2000"}, "outputs": {"max_price": 2000, "min_products": 1}},
+  {"inputs": {"message": "Recommend headphones under 5000"}, "outputs": {"max_price": 5000, "min_products": 1}},
+  {"inputs": {"message": "Recommend laptops under 60000"}, "outputs": {"max_price": 60000, "min_products": 1}}
+]

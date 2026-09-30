@@ -1,0 +1,12 @@
+__pycache__/
+.venv/
+.pytest_cache/
+*.py[cod]
+api_credentials.json
+data/orders.json
+data/*.db
+data/*.db-*
+data/*.tmp
+data/*.corrupt.json
+tests/.runtime/
+labs/results/
