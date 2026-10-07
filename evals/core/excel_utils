@@ -1,0 +1,17 @@
+# Reads & filters CSV into structured test objects
+
+import pandas as pd
+from typing import List, Dict, Any
+
+class TestCaseLoader:
+    def __init__(self, csv_path: str = "evals/datasets/VoltCart_AI_Agent_Test_Cases_100.csv"):
+        self.df = pd.read_csv(csv_path)
+
+    def get_test_cases(self, suite: str = None, priority: str = None) -> List[Dict[str, Any]]:
+        filtered_df = self.df
+        if suite:
+            filtered_df = filtered_df[filtered_df['Test_Suite'] == suite]
+        if priority:
+            filtered_df = filtered_df[filtered_df['Priority'] == priority]
+            
+        return filtered_df.to_dict(orient='records')

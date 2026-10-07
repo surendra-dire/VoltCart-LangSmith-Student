@@ -11,9 +11,7 @@ ROOT_DIR = Path(__file__).resolve().parent
 
 OPENAI_API_KEY = "ollama"  # Ollama does not require a real key, but OpenAI SDK expects a non-empty string
 OPENAI_BASE_URL = "http://localhost:11434/v1"  # Ollama's local OpenAI-compatible endpoint
-#OPENAI_MODEL = "qwen2.5:3b"  # Or any model name you have downloaded in Ollama (e.g., mistral, gemma, phi3)
-
-OPENAI_MODEL = "qwen2.5:1.5b"
+OPENAI_MODEL = "qwen2.5:1.5b"  # Or any model name you have downloaded in Ollama (e.g., mistral, gemma, phi3)
 OPENAI_API_MODE = "chat_completions"
 OPENAI_AUTH_HEADER = "Authorization"  # Standard Bearer auth header
 

@@ -1,3 +1,4 @@
 # Tested LangSmith SDK; the agent itself keeps using the Python standard library.
 langsmith==0.12.6
 pytest>=8.0,<10
+
